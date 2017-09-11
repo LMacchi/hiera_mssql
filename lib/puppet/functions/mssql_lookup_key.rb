@@ -38,11 +38,11 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       pass  = options['pass']
       query = "select #{value} from #{table} where #{var}=\"#{key}\""
 
-      conn = TinyTds::Client.new username: "#{user}", password: "#{pass}", host: "#{host}", database: "#{db}"
-      conn.concat(", port: \"#{port}\"") if port
-
-      Puppet.debug("Hiera-mssql: DB connection to #{host} established")
       Puppet.debug("Hiera-mssql: Attempting query #{query}")
+
+      conn = TinyTds::Client.new username: "#{user}", password: "#{pass}", host: "#{host}", database: "#{db}", port: "#{port}"
+      Puppet.debug("Hiera-mssql: DB connection to #{host} established")
+
       rs = conn.execute query
       answer = rs[value_field]
 
