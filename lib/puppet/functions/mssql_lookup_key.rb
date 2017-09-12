@@ -6,7 +6,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
     raise Puppet::DataBinding::LookupError, "Must install jdbc_sqlserver gem to use hiera-mssql"
   end
 
-  require 'sqljdbc4.jar'
+  #require 'sqljdbc4.jar'
 
   begin
     require 'java'
@@ -49,15 +49,19 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       Puppet.debug("Hiera-mssql: Attempting query #{query}")
 
       Jdbc::Sqlserver.load_driver
-      url = "jdbc:sqlserver://#{host}:#{port};DatabaseName=#{db}"
+      url = "jdbc:jtds:sqlserver://#{host}:#{port};DatabaseName=#{db};useNTLMv2=true"
 
-      conn = java::sql::DriverManager.getConnection(url, user, pass)
+      props = java.util.Properties.new
+      props.set_property :user, sqlserver_user
+      props.set_property :password, sqlserver_pass
+      driver = Java::com.microsoft.sqlserver.jdbc.SQLServerDriver.new
+
+      conn = driver.connect(url, props)
       st = conn.create_statement
 
       Puppet.debug("Hiera-mssql: DB connection to #{host} established")
       
       res = statement.execute_query(query)
-
 
       answer = res[value_field]
 
