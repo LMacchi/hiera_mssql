@@ -1,9 +1,15 @@
 Puppet::Functions.create_function(:mssql_lookup_key) do
 
   begin
-    require 'tiny_tds'
+    require 'jdbc/sqlserver'
   rescue LoadError => e
-    raise Puppet::DataBinding::LookupError, "Must install tiny_tds gem to use hiera-mssql"
+    raise Puppet::DataBinding::LookupError, "Must install jdbc_sqlserver gem to use hiera-mssql"
+  end
+
+  begin
+    require 'java'
+  rescue LoadError => e
+    raise Puppet::DataBinding::LookupError, "Must install java gem to use hiera-mssql"
   end
 
   dispatch :mssql_lookup_key do
@@ -34,17 +40,28 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       table = options['table']       || 'hiera'
       value = options['value_field'] || 'value'
       var   = options['key_field']   || 'key'
-      port  = options['port']        || nil
+      port  = options['port']        || '1433'
       pass  = options['pass']
       query = "select #{value} from #{table} where #{var}=\"#{key}\""
 
       Puppet.debug("Hiera-mssql: Attempting query #{query}")
 
-      conn = TinyTds::Client.new username: "#{user}", password: "#{pass}", host: "#{host}", database: "#{db}", port: "#{port}"
-      Puppet.debug("Hiera-mssql: DB connection to #{host} established")
+      Jdbc::Sqlserver.load_driver
+      url = "jdbc:sqlserver://#{host}:#{port};databaseName=#{db}"
+      props = java.util.Properties.new
+      props = set_property :user, user
+      props = set_property :password, pass
+      driver = Java::com.microsoft.sqlserver.jdbc.SQLServerDriver.new
 
-      rs = conn.execute query
-      answer = rs[value_field]
+      conn = driver.connect(url, props)
+      st = conn.create_statement
+
+      Puppet.debug("Hiera-mssql: DB connection to #{host} established")
+      
+      res = statement.execute_query(query)
+
+
+      answer = res[value_field]
 
       return answer
     rescue TinyTds::Error => e
