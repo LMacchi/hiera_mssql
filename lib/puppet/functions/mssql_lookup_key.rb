@@ -9,7 +9,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
   end
 
   begin
-    require mssql_jar
+    require '/opt/rubylibs/lib/mssql-jdbc-6.2.1.jre8.jar'
   rescue LoadError => e
     raise Puppet::DataBinding::LookupError, "Cannot load file #{mssql_jar}"
   end
