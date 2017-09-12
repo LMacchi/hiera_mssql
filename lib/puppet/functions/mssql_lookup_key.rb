@@ -52,8 +52,8 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       url = "jdbc:jtds:sqlserver://#{host}:#{port};DatabaseName=#{db};useNTLMv2=true"
 
       props = java.util.Properties.new
-      props.set_property :user, sqlserver_user
-      props.set_property :password, sqlserver_pass
+      props.set_property :user, user
+      props.set_property :password, pass
       driver = Java::com.microsoft.sqlserver.jdbc.SQLServerDriver.new
 
       conn = driver.connect(url, props)
