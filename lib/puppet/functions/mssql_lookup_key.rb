@@ -49,7 +49,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       Puppet.debug("Hiera-mssql: Attempting query #{query}")
 
       Jdbc::Sqlserver.load_driver
-      url = "jdbc:sqlserver://#{host}:#{port};databaseName=#{db}"
+      url = "jdbc:sqlserver://#{host}:#{port};DatabaseName=#{db}"
 
       conn = java::sql::DriverManager.getConnection(url, user, pass)
       st = conn.create_statement
