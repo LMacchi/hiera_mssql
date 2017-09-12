@@ -1,12 +1,18 @@
 Puppet::Functions.create_function(:mssql_lookup_key) do
 
+  mssql_jar = '/opt/rubylibs/lib/mssql-jdbc-6.2.1.jre8.jar'
+
   begin
     require 'jdbc/sqlserver'
   rescue LoadError => e
     raise Puppet::DataBinding::LookupError, "Must install jdbc_sqlserver gem to use hiera-mssql"
   end
 
-  #require 'sqljdbc4.jar'
+  begin
+    require mssql_jar
+  rescue LoadError => e
+    raise Puppet::DataBinding::LookupError, "Cannot load file #{mssql_jar}"
+  end
 
   begin
     require 'java'
@@ -49,7 +55,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       Puppet.debug("Hiera-mssql: Attempting query #{query}")
 
       Jdbc::Sqlserver.load_driver
-      url = "jdbc:jtds:sqlserver://#{host}:#{port};DatabaseName=#{db};useNTLMv2=true"
+      url = "jdbc:sqlserver://#{host}:#{port};DatabaseName=#{db}"
 
       props = java.util.Properties.new
       props.set_property :user, user
