@@ -6,6 +6,8 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
     raise Puppet::DataBinding::LookupError, "Must install jdbc_sqlserver gem to use hiera-mssql"
   end
 
+  require 'sqljdbc4.jar'
+
   begin
     require 'java'
   rescue LoadError => e
