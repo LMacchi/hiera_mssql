@@ -1,9 +1,15 @@
 Puppet::Functions.create_function(:mssql_lookup_key) do
 
   begin
-    require 'tiny_tds'
+    require 'jdbc/sqlserver'
   rescue LoadError => e
-    raise Puppet::DataBinding::LookupError, "Must install tiny_tds gem to use hiera-mssql"
+    raise Puppet::DataBinding::LookupError, "Must install jdbc_sqlserver gem to use hiera-mssql"
+  end
+
+  begin
+    require 'java'
+  rescue LoadError => e
+    raise Puppet::DataBinding::LookupError, "Must install java gem to use hiera-mssql"
   end
 
   dispatch :mssql_lookup_key do
@@ -27,32 +33,39 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
   end
 
   def mssql_get(key, context, options)
-    begin
+#    begin
       host  = options['host']        || 'localhost'
       user  = options['user']        || 'hiera'
       db    = options['database']    || 'hiera'
       table = options['table']       || 'hiera'
       value = options['value_field'] || 'value'
       var   = options['key_field']   || 'key'
-      port  = options['port']        || nil
+      port  = options['port']        || '1433'
       pass  = options['pass']
       query = "select #{value} from #{table} where #{var}=\"#{key}\""
 
       Puppet.debug("Hiera-mssql: Attempting query #{query}")
 
-      conn = TinyTds::Client.new username: "#{user}", password: "#{pass}", host: "#{host}", database: "#{db}", port: "#{port}"
-      Puppet.debug("Hiera-mssql: DB connection to #{host} established")
+      Jdbc::Sqlserver.load_driver
+      url = "jdbc:sqlserver://#{host}:#{port};databaseName=#{db}"
 
-      rs = conn.execute query
-      answer = rs[value_field]
+      conn = java::sql::DriverManager.getConnection(url, user, pass)
+      st = conn.create_statement
+
+      Puppet.debug("Hiera-mssql: DB connection to #{host} established")
+      
+      res = statement.execute_query(query)
+
+
+      answer = res[value_field]
 
       return answer
-    rescue TinyTds::Error => e
-      raise Puppet::DataBinding::LookupError, "Hiera-mssql: #{e.to_s}"
+#    rescue TinyTds::Error => e
+#      raise Puppet::DataBinding::LookupError, "Hiera-mssql: #{e.to_s}"
 
-    ensure
+#    ensure
       conn.close if conn
-    end
+#    end
   end
 
 end
