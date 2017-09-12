@@ -1,10 +1,18 @@
 Puppet::Functions.create_function(:mssql_lookup_key) do
 
+  mssql_jar = '/opt/rubylibs/lib/mssql-jdbc-6.2.1.jre8.jar'
+
   begin
     require 'jdbc/sqlserver'
   rescue LoadError => e
     raise Puppet::DataBinding::LookupError, "Must install jdbc_sqlserver gem to use hiera-mssql"
   end
+
+#  begin
+#    require '/opt/rubylibs/lib/mssql-jdbc-6.2.1.jre8.jar'
+#  rescue LoadError => e
+#    raise Puppet::DataBinding::LookupError, "Cannot load file #{mssql_jar}"
+#  end
 
   begin
     require 'java'
@@ -47,19 +55,23 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       Puppet.debug("Hiera-mssql: Attempting query #{query}")
 
       Jdbc::Sqlserver.load_driver
-      url = "jdbc:sqlserver://#{host}:#{port};databaseName=#{db}"
+      url = "jdbc:sqlserver://#{host}:#{port};DatabaseName=#{db}"
 
-      conn = java::sql::DriverManager.getConnection(url, user, pass)
+      props = java.util.Properties.new
+      props.set_property :user, user
+      props.set_property :password, pass
+      driver = Java::com.microsoft.sqlserver.jdbc.SQLServerDriver.new
+
+      conn = driver.connect(url, props)
       st = conn.create_statement
 
       Puppet.debug("Hiera-mssql: DB connection to #{host} established")
       
       res = statement.execute_query(query)
+      
+      col = res.getMetaData.getColumnCount
 
-
-      answer = res[value_field]
-
-      return answer
+      return col
 #    rescue TinyTds::Error => e
 #      raise Puppet::DataBinding::LookupError, "Hiera-mssql: #{e.to_s}"
 
