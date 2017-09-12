@@ -32,12 +32,16 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
     unless options.include?('pass')
       raise ArgumentError, "'mssql_lookup_key': 'pass' must be declared in hiera.yaml when using this lookup_key function"
     end
-
+    
     result = mssql_get(key, context, options)
 
-    answer = result.is_a?(Hash) ? result[key] : result
-    context.not_found if answer.nil?
-    return answer
+    value = options['value_field'] || 'value'
+    if answer.empty?
+      context.not_found
+    else
+      answer = result.is_a?(Hash) ? result[value] : result
+      return answer
+    end
   end
 
   def mssql_get(key, context, options)
@@ -50,7 +54,8 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       var   = options['key_field']   || 'key'
       port  = options['port']        || '1433'
       pass  = options['pass']
-      query = "select #{value} from #{table} where #{var}=\"#{key}\""
+      query = "select * from #{table} where #{var}='#{key}'"
+      data = {}
 
       Puppet.debug("Hiera-mssql: Attempting query #{query}")
 
@@ -69,11 +74,14 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       
       res = st.execute_query(query)
 
-      if res.nil?
-        return nil
-      else 
-        return res.getMetaData.getColumnCount
+      while (res.next) do
+        data[res.getObject(var)] = res.getObject(value)
       end
+
+      Puppet.debug("Hiera-mssql: Value found is #{data[key]}")
+  
+      return data
+
 #    rescue TinyTds::Error => e
 #      raise Puppet::DataBinding::LookupError, "Hiera-mssql: #{e.to_s}"
 
