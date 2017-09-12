@@ -48,12 +48,9 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
 
       Jdbc::Sqlserver.load_driver
       url = "jdbc:sqlserver://#{host}:#{port};databaseName=#{db}"
-      props = java.util.Properties.new
-      props = set_property :user, user
-      props = set_property :password, pass
       driver = Java::com.microsoft.sqlserver.jdbc.SQLServerDriver.new
 
-      conn = driver.connect(url, props)
+      conn = driver.connect(url, user, pass)
       st = conn.create_statement
 
       Puppet.debug("Hiera-mssql: DB connection to #{host} established")
