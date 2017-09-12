@@ -69,9 +69,9 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       
       res = st.execute_query(query)
 
-      if res.nil?
+      if ! res.next then
         return nil
-      else 
+      else
         return res.getMetaData.getColumnCount
       end
 #    rescue TinyTds::Error => e
