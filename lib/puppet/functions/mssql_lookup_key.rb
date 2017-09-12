@@ -8,11 +8,11 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
     raise Puppet::DataBinding::LookupError, "Must install jdbc_sqlserver gem to use hiera-mssql"
   end
 
-  begin
-    require '/opt/rubylibs/lib/mssql-jdbc-6.2.1.jre8.jar'
-  rescue LoadError => e
-    raise Puppet::DataBinding::LookupError, "Cannot load file #{mssql_jar}"
-  end
+#  begin
+#    require '/opt/rubylibs/lib/mssql-jdbc-6.2.1.jre8.jar'
+#  rescue LoadError => e
+#    raise Puppet::DataBinding::LookupError, "Cannot load file #{mssql_jar}"
+#  end
 
   begin
     require 'java'
@@ -68,10 +68,10 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       Puppet.debug("Hiera-mssql: DB connection to #{host} established")
       
       res = statement.execute_query(query)
+      
+      col = res.getMetaData.getColumnCount
 
-      answer = res[value_field]
-
-      return answer
+      return col
 #    rescue TinyTds::Error => e
 #      raise Puppet::DataBinding::LookupError, "Hiera-mssql: #{e.to_s}"
 
