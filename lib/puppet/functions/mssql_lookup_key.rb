@@ -68,10 +68,12 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       Puppet.debug("Hiera-mssql: DB connection to #{host} established")
       
       res = st.execute_query(query)
-      
-      col = res.getMetaData.getColumnCount
 
-      return col
+      if res.nil?
+        return nil
+      else 
+        return res.getMetaData.getColumnCount
+      end
 #    rescue TinyTds::Error => e
 #      raise Puppet::DataBinding::LookupError, "Hiera-mssql: #{e.to_s}"
 
