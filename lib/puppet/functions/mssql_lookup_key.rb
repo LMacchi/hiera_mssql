@@ -67,7 +67,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
 
       Puppet.debug("Hiera-mssql: DB connection to #{host} established")
       
-      res = statement.execute_query(query)
+      res = st.execute_query(query)
       
       col = res.getMetaData.getColumnCount
 
