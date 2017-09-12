@@ -33,7 +33,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
   end
 
   def mssql_get(key, context, options)
-    begin
+#    begin
       host  = options['host']        || 'localhost'
       user  = options['user']        || 'hiera'
       db    = options['database']    || 'hiera'
@@ -64,12 +64,12 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       answer = res[value_field]
 
       return answer
-    rescue TinyTds::Error => e
-      raise Puppet::DataBinding::LookupError, "Hiera-mssql: #{e.to_s}"
+#    rescue TinyTds::Error => e
+#      raise Puppet::DataBinding::LookupError, "Hiera-mssql: #{e.to_s}"
 
-    ensure
+#    ensure
       conn.close if conn
-    end
+#    end
   end
 
 end
