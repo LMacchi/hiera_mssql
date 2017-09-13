@@ -50,7 +50,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       var   = options['key_field']   || 'key'
       port  = options['port']        || '1433'
       pass  = options['pass']
-      query = "select * from #{table} where #{var}=\"#{key}\""
+      query = "select * from #{table} where #{var}='#{key}'"
       data = {}
 
       Puppet.debug("Hiera-mssql: Attempting query #{query}")
