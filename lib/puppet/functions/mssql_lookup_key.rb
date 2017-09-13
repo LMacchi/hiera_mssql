@@ -36,9 +36,12 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
     result = mssql_get(key, context, options)
 
     value = options['value_field'] || 'value'
-    answer = result.is_a?(Hash) ? result[value] : result
-    context.not_found if answer.empty?
-    return answer
+    if answer.empty?
+      context.not_found
+    else
+      answer = result.is_a?(Hash) ? result[value] : result
+      return answer
+    end
   end
 
   def mssql_get(key, context, options)
@@ -75,6 +78,8 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
         data[res.getObject(var)] = res.getObject(value)
       end
 
+      Puppet.debug("Hiera-mssql: Value found is #{data[key]}")
+  
       return data
 
 #    rescue TinyTds::Error => e
