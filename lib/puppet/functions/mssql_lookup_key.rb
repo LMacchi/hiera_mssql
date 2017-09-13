@@ -45,11 +45,12 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
     end
     
     result = mssql_get(key, context, options)
+    Puppet.debug("Found #{result.length} results for #{key}")
 
     if result.empty?
       context.not_found
     else
-      answer = result.is_a?(Hash) ? result[options['value']] : result
+      answer = result.is_a?(Hash) ? result[options['key_field']] : result
       return answer
     end
   end
@@ -106,7 +107,8 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
         res = conn.execute query
 
         res.each do |row|
-           data[var] = row[value]
+           data[var] = row[value].chomp
+           Puppet.debug("Hiera-mssql: Adding {#{var}} to data with value {#{row[value]}")
         end
 
         Puppet.debug("Hiera-mssql: Value found is #{data[var]}")
