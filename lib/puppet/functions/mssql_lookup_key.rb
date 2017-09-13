@@ -109,6 +109,8 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
            data[key] = row[value]
         end
 
+        return data
+
       rescue TinyTds::Error => e
         raise Puppet::DataBinding::LookupError, "Hiera-mssql: #{e.to_s}"
 
