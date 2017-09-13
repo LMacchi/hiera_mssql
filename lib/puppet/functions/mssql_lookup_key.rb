@@ -103,7 +103,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       # Not using jdbc
       begin
         conn = TinyTds::Client.new username: user, password: pass, host: host, database: db, port: port
-        res = con.execute query
+        res = conn.execute query
 
         res.each do | row|
            data[key] = row[value]
