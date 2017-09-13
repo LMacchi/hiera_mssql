@@ -89,7 +89,8 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
         while (res.next) do
           data[res.getObject(var)] = res.getObject(value)
         end
-
+        
+        Puppet.debug("Hiera-mssql: For #{key}, data is #{data}")
         return data
 
       rescue Java::ComMicrosoftSqlserverJdbc::SQLServerException => e
@@ -111,6 +112,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
            data[var] = row[value]
         end
 
+        Puppet.debug("Hiera-mssql: For #{key}, data is #{data}")
         return data
 
       rescue TinyTds::Error => e
