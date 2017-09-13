@@ -32,9 +32,10 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
     unless options.include?('pass')
       raise ArgumentError, "'mssql_lookup_key': 'pass' must be declared in hiera.yaml when using this lookup_key function"
     end
-
+    
     result = mssql_get(key, context, options)
 
+    value = options['value_field'] || 'value'
     answer = result.is_a?(Hash) ? result[value] : result
     context.not_found if answer.empty?
     return answer
