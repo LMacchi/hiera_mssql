@@ -38,7 +38,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
   end
 
   def mssql_lookup_key(key, options, context)
-    return context.cached_value(key) if context.cache_has_key(key)
+#    return context.cached_value(key) if context.cache_has_key(key)
 
     unless options.include?('pass')
       raise ArgumentError, "'mssql_lookup_key': 'pass' must be declared in hiera.yaml when using this lookup_key function"
@@ -50,7 +50,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
     if result.empty?
       context.not_found
     else
-      answer = result.is_a?(Hash) ? result[options[key]] : result
+      answer = result.is_a?(Hash) ? result[key] : result
       return answer
     end
   end
