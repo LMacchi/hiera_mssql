@@ -45,7 +45,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
     end
     
     result = mssql_get(key, context, options)
-    Puppet.debug("Found #{result.length} results for #{options['key_field']}")
+    Puppet.debug("Found #{result.length} results for #{key}")
 
     if result.empty?
       context.not_found
