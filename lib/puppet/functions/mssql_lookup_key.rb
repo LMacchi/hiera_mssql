@@ -35,8 +35,8 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
 
     result = mssql_get(key, context, options)
 
-    answer = result.is_a?(Hash) ? result[key] : result
-    context.not_found if answer.nil?
+    answer = result.is_a?(Hash) ? result[value] : result
+    context.not_found if answer.empty?
     return answer
   end
 
@@ -50,7 +50,8 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       var   = options['key_field']   || 'key'
       port  = options['port']        || '1433'
       pass  = options['pass']
-      query = "select #{value} from #{table} where #{var}=\"#{key}\""
+      query = "select * from #{table} where #{var}=\"#{key}\""
+      data = {}
 
       Puppet.debug("Hiera-mssql: Attempting query #{query}")
 
@@ -69,11 +70,12 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       
       res = st.execute_query(query)
 
-      if ! res.next then
-        return nil
-      else
-        return res.getMetaData.getColumnCount
+      while (res.next) do
+        data[res.getObject(var)] = res.getObject(value)
       end
+
+      return data
+
 #    rescue TinyTds::Error => e
 #      raise Puppet::DataBinding::LookupError, "Hiera-mssql: #{e.to_s}"
 
