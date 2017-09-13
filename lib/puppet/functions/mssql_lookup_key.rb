@@ -87,7 +87,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
         res = st.execute_query(query)
 
         while (res.next) do
-          data[res.getObject(var)] = res.getObject(value)
+          data[key] = res.getObject(value)
         end
         
         Puppet.debug("Hiera-mssql: For #{key}, data is #{data}")
@@ -109,7 +109,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
         res = conn.execute query
 
         res.each do |row|
-           data[var] = row[value]
+           data[key] = row[value]
         end
 
         Puppet.debug("Hiera-mssql: For #{key}, data is #{data}")
