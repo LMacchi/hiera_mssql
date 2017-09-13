@@ -50,7 +50,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
     if result.empty?
       context.not_found
     else
-      answer = result.is_a?(Hash) ? result[options['key_field']] : result
+      answer = result.is_a?(Hash) ? result[options[key]] : result
       return answer
     end
   end
@@ -87,11 +87,10 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
         res = st.execute_query(query)
 
         while (res.next) do
-          data[res.getObject(var)] = res.getObject(value)
+          data[key] = res.getObject(value)
         end
-
-        Puppet.debug("Hiera-mssql: Value found is #{data[key]}")
-  
+        
+        Puppet.debug("Hiera-mssql: For #{key}, data is #{data}")
         return data
 
       rescue Java::ComMicrosoftSqlserverJdbc::SQLServerException => e
@@ -104,14 +103,16 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       # Not using jdbc
       begin
         conn = TinyTds::Client.new username: user, password: pass, host: host, database: db, port: port
+        
+        Puppet.debug("Hiera-mssql: DB connection to #{host} established")
+        
         res = conn.execute query
 
         res.each do |row|
-           data[var] = row[value].chomp
-           Puppet.debug("Hiera-mssql: Adding {#{var}} to data with value {#{row[value]}")
+           data[key] = row[value]
         end
 
-        Puppet.debug("Hiera-mssql: Value found is #{data[var]}")
+        Puppet.debug("Hiera-mssql: For #{key}, data is #{data}")
         return data
 
       rescue TinyTds::Error => e
