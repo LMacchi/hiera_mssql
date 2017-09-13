@@ -1,9 +1,23 @@
 Puppet::Functions.create_function(:mssql_lookup_key) do
 
+  mssql_jar = '/opt/rubylibs/lib/mssql-jdbc-6.2.1.jre8.jar'
+
   begin
-    require 'tiny_tds'
+    require 'jdbc/sqlserver'
   rescue LoadError => e
-    raise Puppet::DataBinding::LookupError, "Must install tiny_tds gem to use hiera-mssql"
+    raise Puppet::DataBinding::LookupError, "Must install jdbc_sqlserver gem to use hiera-mssql"
+  end
+
+  begin
+    require '/opt/rubylibs/lib/mssql-jdbc-6.2.1.jre8.jar'
+  rescue LoadError => e
+    raise Puppet::DataBinding::LookupError, "Cannot load file #{mssql_jar}"
+  end
+
+  begin
+    require 'java'
+  rescue LoadError => e
+    raise Puppet::DataBinding::LookupError, "Must install java gem to use hiera-mssql"
   end
 
   dispatch :mssql_lookup_key do
@@ -18,12 +32,15 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
     unless options.include?('pass')
       raise ArgumentError, "'mssql_lookup_key': 'pass' must be declared in hiera.yaml when using this lookup_key function"
     end
-
+    
     result = mssql_get(key, context, options)
 
-    answer = result.is_a?(Hash) ? result[key] : result
-    context.not_found if answer.nil?
-    return answer
+    if result.empty?
+      context.not_found
+    else
+      answer = result.is_a?(Hash) ? result[options['value']] : result
+      return answer
+    end
   end
 
   def mssql_get(key, context, options)
@@ -34,20 +51,37 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
       table = options['table']       || 'hiera'
       value = options['value_field'] || 'value'
       var   = options['key_field']   || 'key'
-      port  = options['port']        || nil
+      port  = options['port']        || '1433'
       pass  = options['pass']
-      query = "select #{value} from #{table} where #{var}=\"#{key}\""
+      query = "select * from #{table} where #{var}='#{key}'"
+      data = {}
 
       Puppet.debug("Hiera-mssql: Attempting query #{query}")
 
-      conn = TinyTds::Client.new username: "#{user}", password: "#{pass}", host: "#{host}", database: "#{db}", port: "#{port}"
+      Jdbc::Sqlserver.load_driver
+      url = "jdbc:sqlserver://#{host}:#{port};DatabaseName=#{db}"
+
+      props = java.util.Properties.new
+      props.set_property :user, user
+      props.set_property :password, pass
+      driver = Java::com.microsoft.sqlserver.jdbc.SQLServerDriver.new
+
+      conn = driver.connect(url, props)
+      st = conn.create_statement
+
       Puppet.debug("Hiera-mssql: DB connection to #{host} established")
+      
+      res = st.execute_query(query)
 
-      rs = conn.execute query
-      answer = rs[value_field]
+      while (res.next) do
+        data[res.getObject(var)] = res.getObject(value)
+      end
 
-      return answer
-    rescue TinyTds::Error => e
+      Puppet.debug("Hiera-mssql: Value found is #{data[key]}")
+  
+      return data
+
+    rescue Java::ComMicrosoftSqlserverJdbc::SQLServerException => e
       raise Puppet::DataBinding::LookupError, "Hiera-mssql: #{e.to_s}"
 
     ensure
