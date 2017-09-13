@@ -45,6 +45,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
     end
     
     result = mssql_get(key, context, options)
+    Puppet.debug("Hiera-mssql: Returned #{result}")
 
     if result.empty?
       context.not_found
