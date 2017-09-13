@@ -107,7 +107,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
         res = conn.execute query
 
         res.each do |row|
-           data[var] = chomp(row[value])
+           data[var] = row[value].chomp
            Puppet.debug("Hiera-mssql: Adding {#{var}} to data with value {#{row[value]}")
         end
 
