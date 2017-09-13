@@ -105,10 +105,11 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
         conn = TinyTds::Client.new username: user, password: pass, host: host, database: db, port: port
         res = conn.execute query
 
-        res.each do | row|
-           data[key] = row[value]
+        res.each do |row|
+           data[var] = row[value]
         end
 
+        Puppet.debug("Hiera-mssql: Value found is #{data[var]}")
         return data
 
       rescue TinyTds::Error => e
