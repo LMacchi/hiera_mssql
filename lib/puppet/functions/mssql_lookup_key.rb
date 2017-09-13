@@ -49,7 +49,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
     if result.empty?
       context.not_found
     else
-      answer = result.is_a?(Hash) ? result[options['value']] : result
+      answer = result.is_a?(Hash) ? result[options['value_field']] : result
       return answer
     end
   end
