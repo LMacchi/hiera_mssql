@@ -56,16 +56,18 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
   end
 
   def mssql_get(key, context, options)
-    host  = options['host']        || 'localhost'
-    user  = options['user']        || 'hiera'
-    db    = options['database']    || 'hiera'
-    table = options['table']       || 'hiera'
-    value = options['value_field'] || 'value'
-    var   = options['key_field']   || 'key'
-    port  = options['port']        || '1433'
-    pass  = options['pass']
-    query = "select * from #{table} where #{var}='#{key}'"
-    data = {}
+    host        = options['host']        || 'localhost'
+    user        = options['user']        || 'hiera'
+    db          = options['database']    || 'hiera'
+    port        = options['port']        || '1433'
+    table       = options['table']       || 'hiera'
+    value       = options['value_field'] || 'value'
+    var         = options['key_field']   || 'key'
+    scope_field = options['scope_field'] || 'scope'
+    scope       = options['scope']       || 'common'
+    pass        = options['pass']
+    query       = "select * from #{table} where #{var}='#{key}'and #{scope_field}='#{scope}'"
+    data        = {}
 
     Puppet.debug("Hiera-mssql: Attempting query #{query}")
 
