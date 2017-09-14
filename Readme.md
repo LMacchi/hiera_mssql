@@ -1,41 +1,110 @@
 # MsSQL backend for Hiera 5
 
-Hiera.yaml:
+## Requirements
+
+- Download `mssql-jdbc-6.2.1.jre8.jar` and place it in `/opt/rubylibs/lib`
 
 ```
-  - name: "MsSQL"
-    lookup_key: mssql_lookup_key
-    options:
-      host: mssql.puppetlabs.com (defaults to localhost)
-      user: hiera (defaults to hiera)
-      pass: hiera123 (required)
-      database: hiera (defaults to hiera)
-      port: 12345 (optional)
-      # query = select %{value_field} from %{table} where %{key_field}="%{key}"
-      table: configdata (defaults to hiera)
-      value_field: val (defaults to value)
-      key_field: var (defaults to key)
+# ls -l /opt/rubylibs/lib/mssql-jdbc-6.2.1.jre8.jar
+-rw-r--r-- 1 root root 1028744 Aug  9 19:11 /opt/rubylibs/lib/mssql-jdbc-6.2.1.jre8.jar
 ```
 
-Data in configdata table:
+- Install jdbc-mssql and java gems with Puppetserver
 
 ```
-MsSQL [hiera]> select val from configdata where var = 'message';
-+-------+
-| val   |
-+-------+
-| hello |
-+-------+
+puppetserver gem install jdbc-mssql
+puppetserver gem install java
+```
+
+- Install tiny\_tds gem with vendored Ruby
+
+```
+/opt/puppetlabs/puppet/bin/gem install tiny_tds
+```
+
+- Set up a MsSQL database:
+
+```
+MsSQL [hiera]> select * from hieradata where var = 'message';
++-------+--------------+--------------+----------------------+
+| id    |  variable    |  value       |    scope             |
++-------+--------------+--------------+----------------------+
+| 1     | message      | Hello world! | laura.puppetlabs.com |
++-------+--------------+--------------+----------------------+
 1 row in set (0.01 sec)
 ```
 
-Result:
+Name of columns are customizable. Variable have to be unique for each scope.
+
+Create an user with read permissions to our table.
+
+- Configure hiera.yaml, each level of the hierarchy will have similar data,
+the only field that will change will be scope.
+
+Facts and strings can be used for scope, an example with `trusted
+certname` and `common`:
 
 ```
-root@master /root> puppet lookup --node $(facter fqdn) --explain message
-Searching for "message"
-  Global Data Provider (hiera configuration version 5)
-    Using configuration "/etc/puppetlabs/puppet/hiera.yaml"
-    Hierarchy entry "MySQL"
-      Found key: "message" value: "hello"
+  - name: "MsSQL Per Node Data"
+    lookup_key: mssql_lookup_key
+    options:
+      host: mssql.puppetlabs.com
+      user: hiera
+      pass: hiera123
+      database: hiera
+      port: 12345
+      # query = select %{value_field} from %{table} where %{key_field}="%{key}"
+      table: configdata
+      value_field: val
+      key_field: var
+      scope_field: scope
+      scope: "%{trusted.certname}"
+  - name: "MsSQL Common Data"
+    lookup_key: mssql_lookup_key
+    options:
+      host: mssql.puppetlabs.com
+      user: hiera
+      pass: hiera123
+      database: hiera
+      port: 12345
+      table: configdata
+      value_field: val
+      key_field: var
+      scope_field: scope
+      scope: "common"
+`
 ```
+
+- You're all ready to go
+
+## Internals
+
+The hiera backend works by querying the data with this query:
+
+```
+select * from %{table} where %{key_field}="%{key}" and %{scope_field}="%{scope}"
+```
+
+Using the information in the example above:
+
+```
+select * from hieradata where variable="message" and scope="laura.puppetlabs.com"
+```
+
+## Defaults
+
+The default values for the options are:
+
+```
+host: localhost
+user: hiera
+database: hiera
+port: 1433
+table: hiera
+value_field: value
+key_field: key
+scope_field: scope
+scope: common
+```
+
+Password is required.
