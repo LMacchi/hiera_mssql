@@ -2,7 +2,8 @@
 
 ## Requirements
 
-- Download `mssql-jdbc-6.2.1.jre8.jar` and place it in `/opt/rubylibs/lib`
+- Download [mssql-jdbc-6.2.1.jre8.jar](https://www.microsoft.com/en-us/download/details.aspx?id=55539) 
+and place it in `/opt/rubylibs/lib`
 
 ```
 # ls -l /opt/rubylibs/lib/mssql-jdbc-6.2.1.jre8.jar
