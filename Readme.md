@@ -13,7 +13,7 @@ and place it in `/opt/rubylibs/lib`
 - Install jdbc-mssql and java gems with Puppetserver
 
 ```
-puppetserver gem install jdbc-mssql
+puppetserver gem install jdbc-sqlserver
 puppetserver gem install java
 ```
 

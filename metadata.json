@@ -1,0 +1,28 @@
+{
+  "name": "laura/hiera_mssql",
+  "version": "0.3.0",
+  "author": "laura",
+  "summary": "Hiera 5 backend for MsSQL",
+  "license": "Apache-2.0",
+  "source": "https://github.com/LMacchi/hiera_mssql.git",
+  "project_page": "https://github.com/LMacchi/hiera_mssql",
+  "issues_url": "https://github.com/LMacchi/hiera_mssql/issues",
+  "dependencies": [
+     { "name":"puppetlabs/puppetserver_gem","version_requirement":">= 1.0.0" }
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "RedHat"
+    },
+    {
+      "operatingsystem": "CentOS"
+    }
+  ],
+  "requirements": [
+    {
+      "name": "puppet",
+      "version_requirement": ">= 4.0.0 < 5.0.0"
+    }
+  ],
+  "data_provider": null
+}
