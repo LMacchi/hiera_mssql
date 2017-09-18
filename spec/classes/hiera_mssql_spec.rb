@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'laura/hiera_mssql::hiera_mssql' do
+describe 'hiera_mssql' do
   on_supported_os(facterversion: '2.4').each do |os, os_facts|
     context "on #{os}" do
       let(:facts) { os_facts }

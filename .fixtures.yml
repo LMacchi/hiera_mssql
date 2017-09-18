@@ -1,0 +1,5 @@
+fixtures:
+  symlinks:
+    my_module: "#{source_dir}"
+  forge_modules:
+    puppetserver_gem: "puppetlabs/puppetserver_gem"
