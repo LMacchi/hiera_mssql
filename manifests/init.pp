@@ -1,5 +1,3 @@
-# laura/hiera_mssql::hiera_mssql
-#
 # A description of what this class does
 #
 # @summary Install packages for MsSQL Hiera 5 Backend
