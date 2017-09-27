@@ -10,11 +10,21 @@ and place it in `/opt/rubylibs/lib`
 -rw-r--r-- 1 root root 1028744 Aug  9 19:11 /opt/rubylibs/lib/mssql-jdbc-6.2.1.jre8.jar
 ```
 
+- Install freetds:
+```
+wget http://www.freetds.org/files/stable/freetds-1.00.21.tar.gz
+tar -xzf freetds-1.00.21.tar.gz
+cd freetds-1.00.21
+./configure --prefix=/usr/local --with-tdsver=7.3
+make
+make install
+```
+
 - Install jdbc-mssql and java gems with Puppetserver
 
 ```
 puppetserver gem install jdbc-sqlserver
-puppetserver gem install java
+puppetserver gem install java -v 0.0.1
 ```
 
 - Install tiny\_tds gem with vendored Ruby
