@@ -66,7 +66,7 @@ Puppet::Functions.create_function(:mssql_lookup_key) do
     scope_field = options['scope_field'] || 'scope'
     scope       = options['scope']       || 'common'
     pass        = options['pass']
-    query       = "select #{value} from #{table} where #{var}='#{key}'and #{scope_field}='#{scope}'"
+    query       = "select * from #{table} where #{var}='#{key}'and #{scope_field}='#{scope}'"
     data        = {}
 
     Puppet.debug("Hiera-mssql: Attempting query #{query}")
