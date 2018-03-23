@@ -1,5 +1,5 @@
 {
-  "name": "laura/hiera_mssql",
+  "name": "laura-hiera_mssql",
   "version": "0.4.0",
   "author": "laura",
   "summary": "Hiera 5 backend for MsSQL",
@@ -8,7 +8,10 @@
   "project_page": "https://github.com/LMacchi/hiera_mssql",
   "issues_url": "https://github.com/LMacchi/hiera_mssql/issues",
   "dependencies": [
-     { "name":"puppetlabs/puppetserver_gem","version_requirement":">= 1.0.0" }
+    {
+      "name": "puppetlabs/puppetserver_gem",
+      "version_requirement": ">= 0.2.0 < 2.0.0"
+    }
   ],
   "operatingsystem_support": [
     {
@@ -30,5 +33,8 @@
     "mssql",
     "microsoft",
     "sql"
-  ]
+  ],
+  "pdk-version": "1.4.1",
+  "template-url": "https://github.com/puppetlabs/pdk-templates",
+  "template-ref": "1.4.1-0-g52adbbb"
 }

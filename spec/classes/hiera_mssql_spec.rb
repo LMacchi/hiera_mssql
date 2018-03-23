@@ -9,18 +9,18 @@ describe 'hiera_mssql' do
 
       describe 'when called with no parameters' do
         it do
-          is_expected.to contain_package('jdbc-sqlserver').with({
+          is_expected.to contain_package('jdbc-sqlserver').with(
             'ensure'   => 'present',
             'provider' => 'puppetserver_gem',
-          })
-          is_expected.to contain_package('java').with({
+          )
+          is_expected.to contain_package('java').with(
             'ensure'   => 'present',
             'provider' => 'puppetserver_gem',
-          })
-          is_expected.to contain_package('tiny_tds').with({
+          )
+          is_expected.to contain_package('tiny_tds').with(
             'ensure'   => 'present',
             'provider' => 'puppet_gem',
-          })
+          )
         end
       end
     end
